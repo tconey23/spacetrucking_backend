@@ -1,38 +1,36 @@
 const express = require('express');
 const app = express();
 
+// Middleware to parse JSON bodies
 app.use(express.json());
 
-app.get('/api/data', (req, res) => {
-    const name = req.query.name || 'Guest';
+// In-memory storage (replace this with a database in production)
+let cargoData = [];
 
-    const data = {
-        message: `Hello, ${name}!`,
-        timestamp: new Date(),
-    };
-
-    res.status(200).json(data);
-});
-
-app.post('/api/data', (req, res) => {
+// POST endpoint to receive and store data
+app.post('/api/cargo', (req, res) => {
     const { station, scu, comm } = req.body;
 
-    console.log(station, scu, comm)
-
+    // Validate incoming data
     if (!station || !scu || !comm) {
-        return res.status(400).json({ error: 'missing post data' });
+        return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const responseData = {
-        station: station,
-        scu: scu,
-        comm: comm
-    };
+    // Store the data (in a real app, you'd save this to a database)
+    const newCargo = { station, scu, comm };
+    cargoData.push(newCargo);
 
-    res.status(201).json(responseData);
+    // Send a success response
+    res.status(201).json({ message: 'Cargo data stored successfully', data: newCargo });
 });
 
-const PORT = process.env.PORT || 3001;
+// Example endpoint to retrieve stored data (for verification)
+app.get('/api/cargo', (req, res) => {
+    res.json(cargoData);
+});
+
+// Server setup
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
