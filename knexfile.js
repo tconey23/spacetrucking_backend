@@ -8,9 +8,9 @@ module.exports = {
     client: 'pg',
     connection: {
       host: '127.0.0.1',
-      user: 'your_database_user',
-      password: 'your_database_password',
-      database: 'your_database_name'
+      user: 'u3ekumf4s5je9p',
+      password: 'pa366b2d3102779c71a6a233cb6071d30f485bc933f5dd6d487acf3ee18d511f5',
+      database: 'd5ndui3ha7m543'
     },
     migrations: {
       directory: './migrations'
