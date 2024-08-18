@@ -20,14 +20,10 @@ pool.query('SELECT NOW()', (err, res) => {
     }
 });
 
-module.exports = pool;
-
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// In-memory storage (replace this with a database in production)
-let cargoData = [];
-
+// POST endpoint to store cargo data
 app.post('/api/cargo', async (req, res) => {
     const { station, scu, comm } = req.body;
 
@@ -43,11 +39,7 @@ app.post('/api/cargo', async (req, res) => {
     }
 });
 
-// Example endpoint to retrieve stored data (for verification)
-app.get('/api/cargo', (req, res) => {
-    res.json(cargoData);
-});
-
+// GET endpoint to retrieve stored cargo data
 app.get('/api/cargo', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM cargo');
@@ -63,7 +55,3 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
-setTimeout(() => {
-    console.log('app running')
-}, 1000);
