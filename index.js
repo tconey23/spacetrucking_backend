@@ -15,17 +15,18 @@ app.get('/api/data', (req, res) => {
 });
 
 app.post('/api/data', (req, res) => {
-    const { name, age } = req.body;
+    const { station, scu, comm } = req.body;
 
-    if (!name || !age) {
-        return res.status(400).json({ error: 'Name and age are required' });
+    if (!station || !scu || !comm) {
+        return res.status(400).json({ error: 'missing post data' });
     }
 
     const responseData = {
-        message: `Hello, ${name}! You are ${age} years old.`,
-        receivedAt: new Date(),
+        station: station,
+        scu: scu,
+        comm: comm
     };
-    
+
     res.status(201).json(responseData);
 });
 
