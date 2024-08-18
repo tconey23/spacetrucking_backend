@@ -1,32 +1,61 @@
 const express = require('express');
 const app = express();
 
+const { Pool } = require('pg');
+
+// Use the DATABASE_URL environment variable for the connection
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,  // This is often required for Heroku connections
+    },
+});
+
+// Example query to ensure the connection works
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) {
+        console.error('Error executing query', err.stack);
+    } else {
+        console.log('Database connected successfully:', res.rows);
+    }
+});
+
+module.exports = pool;
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
 // In-memory storage (replace this with a database in production)
 let cargoData = [];
 
-// POST endpoint to receive and store data
-app.post('/api/cargo', (req, res) => {
+app.post('/api/cargo', async (req, res) => {
     const { station, scu, comm } = req.body;
 
-    // Validate incoming data
-    if (!station || !scu || !comm) {
-        return res.status(400).json({ error: 'All fields are required' });
+    try {
+        const result = await pool.query(
+            'INSERT INTO cargo (station, scu, comm) VALUES ($1, $2, $3) RETURNING *',
+            [station, scu, comm]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Database error' });
     }
-
-    // Store the data (in a real app, you'd save this to a database)
-    const newCargo = { station, scu, comm };
-    cargoData.push(newCargo);
-
-    // Send a success response
-    res.status(201).json({ message: 'Cargo data stored successfully', data: newCargo });
 });
 
 // Example endpoint to retrieve stored data (for verification)
 app.get('/api/cargo', (req, res) => {
     res.json(cargoData);
+});
+
+app.get('/api/cargo', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM cargo');
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 });
 
 // Server setup
