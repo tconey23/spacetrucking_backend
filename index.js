@@ -17,6 +17,8 @@ app.get('/api/data', (req, res) => {
 app.post('/api/data', (req, res) => {
     const { station, scu, comm } = req.body;
 
+    console.log(station, scu, comm)
+
     if (!station || !scu || !comm) {
         return res.status(400).json({ error: 'missing post data' });
     }
